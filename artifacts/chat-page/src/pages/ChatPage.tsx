@@ -144,6 +144,8 @@ export default function ChatPage() {
   const [timeTyping, setTimeTyping] = useState(false);
   const [showDiscreetChoice, setShowDiscreetChoice] = useState(false);
   const [discreetChoice, setDiscreetChoice] = useState<string | null>(null);
+  const [discreetReplies, setDiscreetReplies] = useState<string[]>([]);
+  const [discreetTyping, setDiscreetTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -163,7 +165,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -309,6 +311,21 @@ export default function ChatPage() {
     });
     const lastDelay = 1400 + (msgs.length - 1) * 1800;
     setTimeout(() => setShowDiscreetChoice(true), lastDelay + 800);
+  }
+
+  function triggerDiscreetReply() {
+    const msgs = [
+      "Beleza, estou confiando em você... Mas se fizer qualquer merda, é ban imediato. Combinado?",
+      "Eai amor, vai querer entrar agora ?",
+    ];
+    msgs.forEach((msg, i) => {
+      const delay = 1400 + i * 1800;
+      setTimeout(() => setDiscreetTyping(true), delay - 800);
+      setTimeout(() => {
+        setDiscreetTyping(false);
+        setDiscreetReplies((prev) => [...prev, msg]);
+      }, delay);
+    });
   }
 
   function selectAgeChoice(option: string) {
@@ -670,6 +687,19 @@ export default function ChatPage() {
             </div>
           )}
 
+          {discreetReplies.map((msg, i) => (
+            <div key={`dr${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+              <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{msg}</p>
+                <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                  {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {discreetTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -748,7 +778,7 @@ export default function ChatPage() {
         {showDiscreetChoice && !discreetChoice && (
           <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
             <button
-              onClick={() => { setDiscreetChoice("SIM, SOU DISCRETO E MADURO"); setShowDiscreetChoice(false); }}
+              onClick={() => { setDiscreetChoice("SIM, SOU DISCRETO E MADURO"); setShowDiscreetChoice(false); triggerDiscreetReply(); }}
               style={{
                 background: "#25a898",
                 color: "white",
