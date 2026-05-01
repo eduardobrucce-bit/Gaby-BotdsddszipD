@@ -128,6 +128,8 @@ export default function ChatPage() {
   const [finalTyping, setFinalTyping] = useState(false);
   const [showChoices2, setShowChoices2] = useState(false);
   const [ageChoice, setAgeChoice] = useState<string | null>(null);
+  const [ageReplies, setAgeReplies] = useState<string[]>([]);
+  const [ageTyping, setAgeTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -147,7 +149,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -222,9 +224,24 @@ export default function ChatPage() {
     if (e.key === "Enter") sendFinalMessage();
   }
 
+  function triggerAgeReply() {
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "age1",        delay: 1200 },
+      { kind: "text:Ok? 😊", delay: 2600 },
+    ];
+    steps.forEach(({ kind, delay }) => {
+      setTimeout(() => setAgeTyping(true), delay - 700);
+      setTimeout(() => {
+        setAgeTyping(false);
+        setAgeReplies((prev) => [...prev, kind]);
+      }, delay);
+    });
+  }
+
   function selectAgeChoice(option: string) {
     setAgeChoice(option);
     setShowChoices2(false);
+    triggerAgeReply();
   }
 
   function sendMessage() {
@@ -455,6 +472,25 @@ export default function ChatPage() {
               </div>
             </div>
           )}
+
+          {ageReplies.map((item, i) => {
+            if (item.startsWith("text:")) {
+              const text = item.slice(5);
+              return (
+                <div key={`ar${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return <AudioBubble key={`ar${i}`} src={`/${item}.mp3`} />;
+          })}
+
+          {ageTyping && <TypingIndicator />}
 
           <div ref={bottomRef} />
         </div>
