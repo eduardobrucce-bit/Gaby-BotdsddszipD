@@ -142,6 +142,8 @@ export default function ChatPage() {
   const [timeChoice, setTimeChoice] = useState<string | null>(null);
   const [timeReplies, setTimeReplies] = useState<string[]>([]);
   const [timeTyping, setTimeTyping] = useState(false);
+  const [showDiscreetChoice, setShowDiscreetChoice] = useState(false);
+  const [discreetChoice, setDiscreetChoice] = useState<string | null>(null);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -161,7 +163,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -305,6 +307,8 @@ export default function ChatPage() {
         setTimeReplies((prev) => [...prev, msg]);
       }, delay);
     });
+    const lastDelay = 1400 + (msgs.length - 1) * 1800;
+    setTimeout(() => setShowDiscreetChoice(true), lastDelay + 800);
   }
 
   function selectAgeChoice(option: string) {
@@ -651,6 +655,21 @@ export default function ChatPage() {
 
           {timeTyping && <TypingIndicator />}
 
+          {discreetChoice && (
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4, animation: "fadeSlide 0.2s ease" }}>
+              <div style={{ background: "#dcf8c6", borderRadius: "12px 2px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{discreetChoice}</p>
+                <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3 }}>
+                  {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+                    <path d="M1 5.5L4.5 9L9 3" stroke="#53bdeb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 5.5L9.5 9L14 3" stroke="#53bdeb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div ref={bottomRef} />
         </div>
 
@@ -721,6 +740,31 @@ export default function ChatPage() {
               }}
             >
               OK, PODE CONFIAR
+            </button>
+          </div>
+        )}
+
+        {/* Discreet choice button */}
+        {showDiscreetChoice && !discreetChoice && (
+          <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
+            <button
+              onClick={() => { setDiscreetChoice("SIM, SOU DISCRETO E MADURO"); setShowDiscreetChoice(false); }}
+              style={{
+                background: "#25a898",
+                color: "white",
+                border: "none",
+                borderRadius: 24,
+                padding: "13px 28px",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: 0.5,
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                fontFamily: "inherit",
+                whiteSpace: "nowrap",
+              }}
+            >
+              SIM, SOU DISCRETO E MADURO
             </button>
           </div>
         )}
