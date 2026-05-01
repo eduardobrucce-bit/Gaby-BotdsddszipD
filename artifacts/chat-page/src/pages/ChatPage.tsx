@@ -6,6 +6,7 @@ const bgPattern = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 type MsgKind = "audio1" | "image" | "audio2" | "audio3";
 const SEQUENCE: MsgKind[] = ["audio1", "image", "audio2", "audio3"];
 const DELAYS = [600, 1400, 2200, 3000];
+const INPUT_DELAY = 3800;
 
 function AudioBubble({ src }: { src: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -111,18 +112,20 @@ function TypingIndicator() {
 export default function ChatPage() {
   const [visible, setVisible] = useState<MsgKind[]>([]);
   const [typing, setTyping] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [inputText, setInputText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
     SEQUENCE.forEach((kind, idx) => {
-      // show typing before each message
       timers.push(setTimeout(() => setTyping(true), DELAYS[idx] - 500 > 0 ? DELAYS[idx] - 500 : 0));
       timers.push(setTimeout(() => {
         setTyping(false);
         setVisible((v) => [...v, kind]);
       }, DELAYS[idx]));
     });
+    timers.push(setTimeout(() => setShowInput(true), INPUT_DELAY));
     return () => timers.forEach(clearTimeout);
   }, []);
 
@@ -184,6 +187,26 @@ export default function ChatPage() {
 
           <div ref={bottomRef} />
         </div>
+
+        {/* Input bar */}
+        {showInput && (
+          <div style={{ padding: "8px 12px 20px", background: "#ede8e1", animation: "slideUp 0.35s ease" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 28, padding: "6px 6px 6px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.12)" }}>
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Digite aqui!"
+                style={{ flex: 1, border: "none", outline: "none", fontSize: 15, background: "transparent", color: "#111", fontFamily: "inherit" }}
+              />
+              <button
+                style={{ background: "#25d366", color: "white", border: "none", borderRadius: 22, padding: "10px 22px", fontWeight: 700, fontSize: 14.5, cursor: "pointer", flexShrink: 0, letterSpacing: 0.2 }}
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <style>{`
@@ -194,6 +217,10 @@ export default function ChatPage() {
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
           40%            { transform: translateY(-6px); }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
