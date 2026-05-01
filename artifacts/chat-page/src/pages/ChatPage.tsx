@@ -166,7 +166,7 @@ export default function ChatPage() {
     if (!text) return;
     setUserMessages((prev) => [...prev, text]);
     setInputText("");
-    inputRef.current?.focus();
+    setShowInput(false);
     triggerBotReply();
   }
 
