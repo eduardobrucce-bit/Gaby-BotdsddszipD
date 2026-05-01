@@ -140,6 +140,8 @@ export default function ChatPage() {
   const [typeTyping, setTypeTyping] = useState(false);
   const [showTimeChoices, setShowTimeChoices] = useState(false);
   const [timeChoice, setTimeChoice] = useState<string | null>(null);
+  const [timeReplies, setTimeReplies] = useState<string[]>([]);
+  const [timeTyping, setTimeTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -159,7 +161,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -285,6 +287,24 @@ export default function ChatPage() {
       }, delay);
     });
     setTimeout(() => setShowTimeChoices(true), 3600);
+  }
+
+  function triggerTimeReply() {
+    const msgs = [
+      "Ótimo! Tem várias mulheres no grupo que só conseguem sair nesses horários. \nAssim fica mais fácil marcar algo quando der...",
+      "Agora preciso ser bem sincera contigo:",
+      "Se você é:\n\n❌ Mala, insistente, forçado\n❌ Fica cobrando as meninas\n❌ Não respeita sigilo\n❌ Marca algo e não cumpre lá dentro",
+      "A gente expulsa na hora quem não se comporta. Melhor não entrar se não for discreto e maduro",
+      "Você TEM CERTEZA que é discreto e sabe se comportar com mulher casada?",
+    ];
+    msgs.forEach((msg, i) => {
+      const delay = 1400 + i * 1800;
+      setTimeout(() => setTimeTyping(true), delay - 800);
+      setTimeout(() => {
+        setTimeTyping(false);
+        setTimeReplies((prev) => [...prev, msg]);
+      }, delay);
+    });
   }
 
   function selectAgeChoice(option: string) {
@@ -618,6 +638,19 @@ export default function ChatPage() {
             </div>
           )}
 
+          {timeReplies.map((msg, i) => (
+            <div key={`tmr${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+              <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{msg}</p>
+                <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                  {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {timeTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -703,7 +736,7 @@ export default function ChatPage() {
             ].map(({ emoji, label }) => (
               <button
                 key={label}
-                onClick={() => { setTimeChoice(`${emoji} ${label}`); setShowTimeChoices(false); }}
+                onClick={() => { setTimeChoice(`${emoji} ${label}`); setShowTimeChoices(false); triggerTimeReply(); }}
                 style={{
                   background: "#25a898",
                   color: "white",
