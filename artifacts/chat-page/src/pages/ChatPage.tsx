@@ -136,6 +136,8 @@ export default function ChatPage() {
   const [okTyping, setOkTyping] = useState(false);
   const [showTypeChoices, setShowTypeChoices] = useState(false);
   const [typeChoice, setTypeChoice] = useState<string | null>(null);
+  const [typeReplies, setTypeReplies] = useState<string[]>([]);
+  const [typeTyping, setTypeTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -155,7 +157,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -266,6 +268,20 @@ export default function ChatPage() {
     });
     const lastDelay = 1200 + (msgs.length - 1) * 1600;
     setTimeout(() => setShowTypeChoices(true), lastDelay + 800);
+  }
+
+  function triggerTypeReply() {
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "text:Perfeito meu amor 🔥 Você é dos meus!", delay: 1400 },
+      { kind: "aud7",                                       delay: 2800 },
+    ];
+    steps.forEach(({ kind, delay }) => {
+      setTimeout(() => setTypeTyping(true), delay - 700);
+      setTimeout(() => {
+        setTypeTyping(false);
+        setTypeReplies((prev) => [...prev, kind]);
+      }, delay);
+    });
   }
 
   function selectAgeChoice(option: string) {
@@ -565,6 +581,25 @@ export default function ChatPage() {
             </div>
           )}
 
+          {typeReplies.map((item, i) => {
+            if (item.startsWith("text:")) {
+              const text = item.slice(5);
+              return (
+                <div key={`tr${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return <AudioBubble key={`tr${i}`} src={`/${item}.mp3`} />;
+          })}
+
+          {typeTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -649,7 +684,7 @@ export default function ChatPage() {
             ].map(({ emoji, label }) => (
               <button
                 key={label}
-                onClick={() => { setTypeChoice(`${emoji} ${label}`); setShowTypeChoices(false); }}
+                onClick={() => { setTypeChoice(`${emoji} ${label}`); setShowTypeChoices(false); triggerTypeReply(); }}
                 style={{
                   background: "#25a898",
                   color: "white",
