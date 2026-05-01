@@ -115,6 +115,9 @@ export default function ChatPage() {
   const [showInput, setShowInput] = useState(false);
   const [inputText, setInputText] = useState("");
   const [userMessages, setUserMessages] = useState<string[]>([]);
+  const [botReplies, setBotReplies] = useState<string[]>([]);
+  const [replyTyping, setReplyTyping] = useState(false);
+  const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -133,7 +136,30 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages]);
+  }, [visible, typing, userMessages, botReplies, replyTyping]);
+
+  function triggerBotReply() {
+    if (replySentRef.current) return;
+    replySentRef.current = true;
+
+    // sequence: text1 → aud4 → text2 → aud5 → aud6
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "text:Hmmmm.. gostei do seu nome 😏",  delay: 1400 },
+      { kind: "aud4",                                  delay: 2600 },
+      { kind: "text:Você curte? 🔥",                  delay: 4000 },
+      { kind: "aud5",                                  delay: 5200 },
+      { kind: "aud6",                                  delay: 6400 },
+    ];
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    steps.forEach(({ kind, delay }) => {
+      timers.push(setTimeout(() => setReplyTyping(true), delay - 700));
+      timers.push(setTimeout(() => {
+        setReplyTyping(false);
+        setBotReplies((prev) => [...prev, kind]);
+      }, delay));
+    });
+  }
 
   function sendMessage() {
     const text = inputText.trim();
@@ -141,6 +167,7 @@ export default function ChatPage() {
     setUserMessages((prev) => [...prev, text]);
     setInputText("");
     inputRef.current?.focus();
+    triggerBotReply();
   }
 
   function handleKey(e: React.KeyboardEvent) {
@@ -200,7 +227,7 @@ export default function ChatPage() {
           {typing && <TypingIndicator />}
 
           {userMessages.map((msg, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4, animation: "fadeSlide 0.2s ease" }}>
+            <div key={`u${i}`} style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4, animation: "fadeSlide 0.2s ease" }}>
               <div style={{ background: "#dcf8c6", borderRadius: "12px 2px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
                 <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{msg}</p>
                 <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3 }}>
@@ -213,6 +240,26 @@ export default function ChatPage() {
               </div>
             </div>
           ))}
+
+          {botReplies.map((reply, i) => {
+            if (reply.startsWith("text:")) {
+              const text = reply.slice(5);
+              return (
+                <div key={`r${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            const src = `/${reply}.mp3`;
+            return <AudioBubble key={`r${i}`} src={src} />;
+          })}
+
+          {replyTyping && <TypingIndicator />}
 
           <div ref={bottomRef} />
         </div>
