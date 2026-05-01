@@ -148,6 +148,8 @@ export default function ChatPage() {
   const [discreetTyping, setDiscreetTyping] = useState(false);
   const [showEnterChoices, setShowEnterChoices] = useState(false);
   const [enterChoice, setEnterChoice] = useState<string | null>(null);
+  const [enterReplies, setEnterReplies] = useState<string[]>([]);
+  const [enterTyping, setEnterTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -167,7 +169,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -330,6 +332,25 @@ export default function ChatPage() {
     });
     const lastDelay = 1400 + (msgs.length - 1) * 1800;
     setTimeout(() => setShowEnterChoices(true), lastDelay + 800);
+  }
+
+  function triggerEnterReply() {
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "text:Assim que você entrar, já vamos conversar direto no zap, tá?",                                                                                              delay: 1400  },
+      { kind: "text:Lá dentro você vai poder falar com as meninas, mandar mensagem, trocar foto... Aqui fica muito limitado pra conversar",                                   delay: 3200  },
+      { kind: "text:Combinado?",                                                                                                                                               delay: 5000  },
+      { kind: "text:te mostrar uma fotinha minha pra ver se vc gosta 😈",                                                                                                     delay: 6800  },
+      { kind: "img:enter-photo.png",                                                                                                                                           delay: 8600  },
+      { kind: "text:Eu tenho 45 anos, amo fuder pra caralho e chupar um pau bem gostoso bem devagar... Você curte esse tipo de mulher?",                                      delay: 10400 },
+      { kind: "text:Quer ver mais? Eu mostro rsrs",                                                                                                                            delay: 12200 },
+    ];
+    steps.forEach(({ kind, delay }) => {
+      setTimeout(() => setEnterTyping(true), delay - 800);
+      setTimeout(() => {
+        setEnterTyping(false);
+        setEnterReplies((prev) => [...prev, kind]);
+      }, delay);
+    });
   }
 
   function selectAgeChoice(option: string) {
@@ -719,6 +740,41 @@ export default function ChatPage() {
             </div>
           )}
 
+          {enterReplies.map((item, i) => {
+            if (item.startsWith("text:")) {
+              const text = item.slice(5);
+              return (
+                <div key={`er${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            if (item.startsWith("img:")) {
+              const imgSrc = `/${item.slice(4)}`;
+              return (
+                <div key={`er${i}`} style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: 6, marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
+                    <img src="/avatar.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                  </div>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", overflow: "hidden", maxWidth: "72%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <img src={imgSrc} alt="foto" style={{ width: "100%", display: "block" }} />
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", padding: "3px 10px 5px" }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })}
+
+          {enterTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -799,7 +855,7 @@ export default function ChatPage() {
             {["QUERO ENTRAR AGORA", "QUERO VÊ O QUE TA ROLANDO NO GRUPO"].map((option) => (
               <button
                 key={option}
-                onClick={() => { setEnterChoice(option); setShowEnterChoices(false); }}
+                onClick={() => { setEnterChoice(option); setShowEnterChoices(false); triggerEnterReply(); }}
                 style={{
                   background: "#25a898",
                   color: "white",
