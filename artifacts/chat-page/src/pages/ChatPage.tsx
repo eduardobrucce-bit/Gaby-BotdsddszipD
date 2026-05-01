@@ -117,6 +117,7 @@ export default function ChatPage() {
   const [userMessages, setUserMessages] = useState<string[]>([]);
   const [botReplies, setBotReplies] = useState<string[]>([]);
   const [replyTyping, setReplyTyping] = useState(false);
+  const [showChoices, setShowChoices] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -136,7 +137,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -159,6 +160,7 @@ export default function ChatPage() {
         setBotReplies((prev) => [...prev, kind]);
       }, delay));
     });
+    timers.push(setTimeout(() => setShowChoices(true), 7200));
   }
 
   function sendMessage() {
@@ -260,6 +262,35 @@ export default function ChatPage() {
           })}
 
           {replyTyping && <TypingIndicator />}
+
+          {showChoices && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, marginTop: 8, animation: "fadeSlide 0.3s ease" }}>
+              {["GOSTO! QUERO EXPERIMENTAR 😊", "COMO FUNCIONA?"].map((option) => (
+                <button
+                  key={option}
+                  onClick={() => {
+                    setUserMessages((prev) => [...prev, option]);
+                    setShowChoices(false);
+                  }}
+                  style={{
+                    background: "#075e54",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 20,
+                    padding: "11px 20px",
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    letterSpacing: 0.3,
+                    cursor: "pointer",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div ref={bottomRef} />
         </div>
