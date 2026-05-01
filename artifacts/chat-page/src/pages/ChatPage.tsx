@@ -152,6 +152,8 @@ export default function ChatPage() {
   const [enterTyping, setEnterTyping] = useState(false);
   const [showLikedChoice, setShowLikedChoice] = useState(false);
   const [likedChoice, setLikedChoice] = useState<string | null>(null);
+  const [likedReplies, setLikedReplies] = useState<string[]>([]);
+  const [likedTyping, setLikedTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -171,7 +173,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping, showLikedChoice, likedChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping, showLikedChoice, likedChoice, likedReplies, likedTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -354,6 +356,22 @@ export default function ChatPage() {
       }, delay);
     });
     setTimeout(() => setShowLikedChoice(true), 13000);
+  }
+
+  function triggerLikedReply() {
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "aud8",               delay: 1200 },
+      { kind: "aud9",               delay: 2600 },
+      { kind: "text:Enfimm amor",   delay: 4000 },
+      { kind: "text:Quer entrar agora antes que feche?", delay: 5400 },
+    ];
+    steps.forEach(({ kind, delay }) => {
+      setTimeout(() => setLikedTyping(true), delay - 700);
+      setTimeout(() => {
+        setLikedTyping(false);
+        setLikedReplies((prev) => [...prev, kind]);
+      }, delay);
+    });
   }
 
   function selectAgeChoice(option: string) {
@@ -793,6 +811,25 @@ export default function ChatPage() {
             </div>
           )}
 
+          {likedReplies.map((item, i) => {
+            if (item.startsWith("text:")) {
+              const text = item.slice(5);
+              return (
+                <div key={`lr${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return <AudioBubble key={`lr${i}`} src={`/${item}.mp3`} />;
+          })}
+
+          {likedTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -871,7 +908,7 @@ export default function ChatPage() {
         {showLikedChoice && !likedChoice && (
           <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
             <button
-              onClick={() => { setLikedChoice("GOSTEI MUITO, QUERO ENTRAR"); setShowLikedChoice(false); }}
+              onClick={() => { setLikedChoice("GOSTEI MUITO, QUERO ENTRAR"); setShowLikedChoice(false); triggerLikedReply(); }}
               style={{
                 background: "#25a898",
                 color: "white",
