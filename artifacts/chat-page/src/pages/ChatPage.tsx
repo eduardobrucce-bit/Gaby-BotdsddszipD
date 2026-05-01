@@ -124,6 +124,8 @@ export default function ChatPage() {
   const [showInput2, setShowInput2] = useState(false);
   const [input2Text, setInput2Text] = useState("");
   const [finalUserMsg, setFinalUserMsg] = useState<string | null>(null);
+  const [finalReplies, setFinalReplies] = useState<string[]>([]);
+  const [finalTyping, setFinalTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -143,7 +145,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -189,12 +191,28 @@ export default function ChatPage() {
     setTimeout(() => setShowInput2(true), 10400);
   }
 
+  function triggerFinalReply() {
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "fin1",                                delay: 1200 },
+      { kind: "text:Pra não da problema pra ngm...", delay: 2600 },
+      { kind: "fin2",                                delay: 4000 },
+    ];
+    steps.forEach(({ kind, delay }) => {
+      setTimeout(() => setFinalTyping(true), delay - 700);
+      setTimeout(() => {
+        setFinalTyping(false);
+        setFinalReplies((prev) => [...prev, kind]);
+      }, delay);
+    });
+  }
+
   function sendFinalMessage() {
     const text = input2Text.trim();
     if (!text) return;
     setFinalUserMsg(text);
     setInput2Text("");
     setShowInput2(false);
+    triggerFinalReply();
   }
 
   function handleKey2(e: React.KeyboardEvent) {
@@ -395,6 +413,25 @@ export default function ChatPage() {
               </div>
             </div>
           )}
+
+          {finalReplies.map((item, i) => {
+            if (item.startsWith("text:")) {
+              const text = item.slice(5);
+              return (
+                <div key={`fr${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return <AudioBubble key={`fr${i}`} src={`/${item}.mp3`} />;
+          })}
+
+          {finalTyping && <TypingIndicator />}
 
           <div ref={bottomRef} />
         </div>
