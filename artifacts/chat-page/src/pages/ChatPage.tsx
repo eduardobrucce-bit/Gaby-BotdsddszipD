@@ -1,11 +1,140 @@
+import { useState, useEffect, useRef } from "react";
+
+const TIME = "21:19";
+const bgPattern = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg opacity='0.07' fill='%23a0998d'%3E%3Cpath d='M30 5 C20 5 12 13 12 23 C12 28 14 33 18 36 L16 45 L25 40 C26.6 40.6 28.3 41 30 41 C40 41 48 33 48 23 C48 13 40 5 30 5 Z'/%3E%3C/g%3E%3C/svg%3E")`;
+
+type MsgKind = "audio1" | "image" | "audio2" | "audio3";
+const SEQUENCE: MsgKind[] = ["audio1", "image", "audio2", "audio3"];
+const DELAYS = [600, 1400, 2200, 3000];
+
+function AudioBubble({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [current, setCurrent] = useState(0);
+
+  function fmt(s: number) {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  }
+
+  function toggle() {
+    const a = audioRef.current;
+    if (!a) return;
+    if (playing) { a.pause(); setPlaying(false); }
+    else { a.play(); setPlaying(true); }
+  }
+
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.3s ease" }}>
+      <audio
+        ref={audioRef}
+        src={src}
+        onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
+        onTimeUpdate={() => {
+          const a = audioRef.current;
+          if (!a) return;
+          setCurrent(a.currentTime);
+          setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0);
+        }}
+        onEnded={() => { setPlaying(false); setProgress(0); setCurrent(0); }}
+      />
+      <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "10px 14px 6px", maxWidth: "80%", minWidth: 220, boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* avatar */}
+          <div style={{ width: 36, height: 36, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
+            <img src="/avatar.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+          </div>
+          {/* play/pause */}
+          <button onClick={toggle} style={{ width: 34, height: 34, borderRadius: "50%", background: "#075e54", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            {playing ? (
+              <svg width="11" height="13" viewBox="0 0 11 13" fill="white">
+                <rect x="0" y="0" width="3.5" height="13" rx="1"/>
+                <rect x="7" y="0" width="3.5" height="13" rx="1"/>
+              </svg>
+            ) : (
+              <svg width="12" height="13" viewBox="0 0 12 13" fill="white">
+                <path d="M2 1.5L11 6.5L2 11.5V1.5Z"/>
+              </svg>
+            )}
+          </button>
+          {/* waveform + progress */}
+          <div style={{ flex: 1, position: "relative", height: 28, display: "flex", alignItems: "center" }}>
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", gap: 2 }}>
+              {[3,6,4,9,5,7,3,8,4,6,5,7,4,3,6,8,5,4,7,3,5,8,4,6].map((h, i) => {
+                const pct = ((i + 1) / 24) * 100;
+                return (
+                  <div key={i} style={{ width: 2.5, height: h, background: progress >= pct ? "#075e54" : "#c8c8c8", borderRadius: 1.5, flexShrink: 0 }} />
+                );
+              })}
+            </div>
+          </div>
+          {/* time */}
+          <span style={{ fontSize: 11.5, color: "#8696a0", flexShrink: 0, minWidth: 30 }}>
+            {playing || current > 0 ? fmt(current) : fmt(duration)}
+          </span>
+        </div>
+        <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 3 }}>{TIME}</div>
+      </div>
+    </div>
+  );
+}
+
+function ImageBubble() {
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: 6, marginBottom: 4, animation: "fadeSlide 0.3s ease" }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
+        <img src="/avatar.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+      </div>
+      <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", overflow: "hidden", maxWidth: "72%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+        <img src="/chat-img.png" alt="foto" style={{ width: "100%", display: "block" }} />
+        <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", padding: "3px 10px 5px" }}>{TIME}</div>
+      </div>
+    </div>
+  );
+}
+
+function TypingIndicator() {
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4 }}>
+      <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "10px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.13)", display: "flex", alignItems: "center", gap: 4 }}>
+        {[0, 1, 2].map((i) => (
+          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#8696a0", display: "inline-block", animation: `bounce 1s ease-in-out ${i * 0.18}s infinite` }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ChatPage() {
-  const bgPattern = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg opacity='0.07' fill='%23a0998d'%3E%3Cpath d='M30 5 C20 5 12 13 12 23 C12 28 14 33 18 36 L16 45 L25 40 C26.6 40.6 28.3 41 30 41 C40 41 48 33 48 23 C48 13 40 5 30 5 Z'/%3E%3C/g%3E%3C/svg%3E")`;
+  const [visible, setVisible] = useState<MsgKind[]>([]);
+  const [typing, setTyping] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    SEQUENCE.forEach((kind, idx) => {
+      // show typing before each message
+      timers.push(setTimeout(() => setTyping(true), DELAYS[idx] - 500 > 0 ? DELAYS[idx] - 500 : 0));
+      timers.push(setTimeout(() => {
+        setTyping(false);
+        setVisible((v) => [...v, kind]);
+      }, DELAYS[idx]));
+    });
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [visible, typing]);
 
   return (
     <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", background: "#ece5dd", minHeight: "100vh", display: "flex", justifyContent: "center" }}>
-      <div style={{ width: "100%", maxWidth: 430, minHeight: "100vh", background: "#ede8e1", backgroundImage: bgPattern, display: "flex", flexDirection: "column", position: "relative" }}>
+      <div style={{ width: "100%", maxWidth: 430, minHeight: "100vh", background: "#ede8e1", backgroundImage: bgPattern, display: "flex", flexDirection: "column" }}>
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div style={{ background: "#075e54", color: "white", padding: "8px 10px 8px 12px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }}>
           <svg width="11" height="18" viewBox="0 0 11 18" fill="none" style={{ flexShrink: 0 }}>
             <path d="M10 1L2 9L10 17" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -28,17 +157,15 @@ export default function ChatPage() {
           </svg>
         </div>
 
-        {/* ── Chat body ── */}
-        <div style={{ flex: 1, padding: "10px 10px 8px", display: "flex", flexDirection: "column", gap: 2 }}>
+        {/* Chat body */}
+        <div style={{ flex: 1, padding: "10px 10px 20px", display: "flex", flexDirection: "column", gap: 0, overflowY: "auto" }}>
 
-          {/* "Hoje" separator */}
+          {/* Hoje */}
           <div style={{ display: "flex", justifyContent: "center", margin: "8px 0" }}>
-            <span style={{ background: "#e1d8cf", color: "#4a4a4a", fontSize: 12, padding: "3px 12px", borderRadius: 10, boxShadow: "0 1px 1px rgba(0,0,0,0.1)" }}>
-              Hoje
-            </span>
+            <span style={{ background: "#e1d8cf", color: "#4a4a4a", fontSize: 12, padding: "3px 12px", borderRadius: 10, boxShadow: "0 1px 1px rgba(0,0,0,0.1)" }}>Hoje</span>
           </div>
 
-          {/* "Conta comercial" notice */}
+          {/* Conta comercial */}
           <div style={{ display: "flex", justifyContent: "center", margin: "4px 0 10px" }}>
             <div style={{ background: "#fffde7", border: "1px solid #d4c47a", borderRadius: 10, padding: "6px 14px", fontSize: 12.5, color: "#5c5c00", display: "flex", alignItems: "center", gap: 6 }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -49,8 +176,26 @@ export default function ChatPage() {
             </div>
           </div>
 
+          {visible.includes("audio1") && <AudioBubble src="/aud1.mp3" />}
+          {visible.includes("image")  && <ImageBubble />}
+          {visible.includes("audio2") && <AudioBubble src="/aud2.mp3" />}
+          {visible.includes("audio3") && <AudioBubble src="/aud3.mp3" />}
+          {typing && <TypingIndicator />}
+
+          <div ref={bottomRef} />
         </div>
       </div>
+
+      <style>{`
+        @keyframes fadeSlide {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40%            { transform: translateY(-6px); }
+        }
+      `}</style>
     </div>
   );
 }
