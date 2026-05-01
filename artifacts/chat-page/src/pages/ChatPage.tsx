@@ -132,6 +132,8 @@ export default function ChatPage() {
   const [ageTyping, setAgeTyping] = useState(false);
   const [showOkChoice, setShowOkChoice] = useState(false);
   const [okChoice, setOkChoice] = useState<string | null>(null);
+  const [okReplies, setOkReplies] = useState<string[]>([]);
+  const [okTyping, setOkTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -151,7 +153,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -239,6 +241,27 @@ export default function ChatPage() {
       }, delay);
     });
     setTimeout(() => setShowOkChoice(true), 3300);
+  }
+
+  function triggerOkReply() {
+    const msgs = [
+      "Perfeito! ❤️",
+      "Agora me conta... qual seu tipo de mulher no grupo?",
+      "Temos 3 tipos principais de mulheres casadas no grupo:",
+      "👇🏼👇🏼👇🏼",
+      "🔥 AS SAFADAS (25 a 35 anos)\nSão as mais novas e taradas do grupo. Gostam de putaria o tempo todo, mandar nudes, vídeos, fazer chamada de vídeo safada e provocam bastante...",
+      "💦 AS EXPERIENTES (35 a 45 anos)\nSão as que mais gostam de foder de verdade.\nPouca conversa, muito tesão.\nGostam de gravar, mandar áudio gemendo, e querem marcar encontro rápido",
+      "🍒 AS COROAS (45 a 55 anos)\nAs mais safadas e famintas de todas. São experientes, sem frescura, gostam de quantidade e querem fuder quase todos os dias. Muitas preferem Sexo Anal.",
+      "Qual delas você gosta mais 👇",
+    ];
+    msgs.forEach((msg, i) => {
+      const delay = 1200 + i * 1600;
+      setTimeout(() => setOkTyping(true), delay - 800);
+      setTimeout(() => {
+        setOkTyping(false);
+        setOkReplies((prev) => [...prev, msg]);
+      }, delay);
+    });
   }
 
   function selectAgeChoice(option: string) {
@@ -510,6 +533,19 @@ export default function ChatPage() {
             </div>
           )}
 
+          {okReplies.map((msg, i) => (
+            <div key={`ok${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+              <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{msg}</p>
+                <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                  {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {okTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -563,7 +599,7 @@ export default function ChatPage() {
         {showOkChoice && !okChoice && (
           <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
             <button
-              onClick={() => { setOkChoice("OK, PODE CONFIAR"); setShowOkChoice(false); }}
+              onClick={() => { setOkChoice("OK, PODE CONFIAR"); setShowOkChoice(false); triggerOkReply(); }}
               style={{
                 background: "#25a898",
                 color: "white",
