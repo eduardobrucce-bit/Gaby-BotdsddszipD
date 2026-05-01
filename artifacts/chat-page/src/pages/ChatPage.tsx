@@ -121,8 +121,7 @@ export default function ChatPage() {
   const [choiceSelected, setChoiceSelected] = useState<string | null>(null);
   const [choiceReplies, setChoiceReplies] = useState<string[]>([]);
   const [choiceTyping, setChoiceTyping] = useState(false);
-  const [showInput2, setShowInput2] = useState(false);
-  const [input2Text, setInput2Text] = useState("");
+  const [showChoices2, setShowChoices2] = useState(false);
   const [finalUserMsg, setFinalUserMsg] = useState<string | null>(null);
   const [finalReplies, setFinalReplies] = useState<string[]>([]);
   const [finalTyping, setFinalTyping] = useState(false);
@@ -145,7 +144,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showChoices2, finalUserMsg, finalReplies, finalTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -188,7 +187,7 @@ export default function ChatPage() {
         setChoiceReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowInput2(true), 10400);
+    setTimeout(() => setShowChoices2(true), 10400);
   }
 
   function triggerFinalReply() {
@@ -206,17 +205,10 @@ export default function ChatPage() {
     });
   }
 
-  function sendFinalMessage() {
-    const text = input2Text.trim();
-    if (!text) return;
-    setFinalUserMsg(text);
-    setInput2Text("");
-    setShowInput2(false);
+  function selectFinalChoice(option: string) {
+    setFinalUserMsg(option);
+    setShowChoices2(false);
     triggerFinalReply();
-  }
-
-  function handleKey2(e: React.KeyboardEvent) {
-    if (e.key === "Enter") sendFinalMessage();
   }
 
   function sendMessage() {
@@ -459,26 +451,31 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Second input bar — appears after resp4 */}
-        {showInput2 && (
-          <div style={{ padding: "8px 12px 20px", background: "#ede8e1", animation: "slideUp 0.35s ease" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 28, padding: "6px 6px 6px 18px", boxShadow: "0 1px 3px rgba(0,0,0,0.12)" }}>
-              <input
-                type="text"
-                value={input2Text}
-                onChange={(e) => setInput2Text(e.target.value)}
-                onKeyDown={handleKey2}
-                placeholder="Digite aqui!"
-                autoFocus
-                style={{ flex: 1, border: "none", outline: "none", fontSize: 15, background: "transparent", color: "#111", fontFamily: "inherit" }}
-              />
+        {/* Age choice buttons — appears after resp4 */}
+        {showChoices2 && (
+          <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
+            {["ENTRE 20 E 30 ANOS", "ENTRE 30 E 40 ANOS", "40 ANOS PRA CIMA"].map((option) => (
               <button
-                onClick={sendFinalMessage}
-                style={{ background: "#25d366", color: "white", border: "none", borderRadius: 22, padding: "10px 22px", fontWeight: 700, fontSize: 14.5, cursor: "pointer", flexShrink: 0, letterSpacing: 0.2 }}
+                key={option}
+                onClick={() => selectFinalChoice(option)}
+                style={{
+                  background: "#25a898",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 20,
+                  padding: "10px 18px",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: 0.3,
+                  cursor: "pointer",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+                  fontFamily: "inherit",
+                  whiteSpace: "nowrap",
+                }}
               >
-                Enviar
+                {option}
               </button>
-            </div>
+            ))}
           </div>
         )}
       </div>
