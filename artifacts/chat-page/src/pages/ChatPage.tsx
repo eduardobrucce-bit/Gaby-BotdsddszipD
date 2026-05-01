@@ -118,6 +118,7 @@ export default function ChatPage() {
   const [botReplies, setBotReplies] = useState<string[]>([]);
   const [replyTyping, setReplyTyping] = useState(false);
   const [showChoices, setShowChoices] = useState(false);
+  const [choiceSelected, setChoiceSelected] = useState<string | null>(null);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -137,7 +138,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -269,7 +270,7 @@ export default function ChatPage() {
                 <button
                   key={option}
                   onClick={() => {
-                    setUserMessages((prev) => [...prev, option]);
+                    setChoiceSelected(option);
                     setShowChoices(false);
                   }}
                   style={{
@@ -289,6 +290,21 @@ export default function ChatPage() {
                   {option}
                 </button>
               ))}
+            </div>
+          )}
+
+          {choiceSelected && (
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4, animation: "fadeSlide 0.2s ease" }}>
+              <div style={{ background: "#dcf8c6", borderRadius: "12px 2px 12px 12px", padding: "8px 12px 4px", maxWidth: "75%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.45, wordBreak: "break-word" }}>{choiceSelected}</p>
+                <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 3 }}>
+                  {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+                    <path d="M1 5.5L4.5 9L9 3" stroke="#53bdeb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 5.5L9.5 9L14 3" stroke="#53bdeb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
             </div>
           )}
 
