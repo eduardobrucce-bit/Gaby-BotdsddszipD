@@ -51,7 +51,7 @@ export default function ChatPage() {
           </svg>
           {/* avatar */}
           <div style={{ width: 40, height: 40, borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "2px solid #128c7e" }}>
-            <img src="/patricia.png" alt="Patrícia" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+            <img src="/avatar.png" alt="Patrícia" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700, fontSize: 16, display: "flex", alignItems: "center", gap: 4 }}>
@@ -132,7 +132,7 @@ export default function ChatPage() {
             <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: 6, animation: "fadeSlide 0.3s ease" }}>
               {/* small avatar */}
               <div style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", flexShrink: 0, marginBottom: 2 }}>
-                <img src="/patricia.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                <img src="/avatar.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
               </div>
               <div style={{ background: "#ffffff", borderRadius: "2px 12px 12px 12px", overflow: "hidden", maxWidth: "72%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)", position: "relative" }}>
                 <img src="/patricia.png" alt="foto" style={{ width: "100%", display: "block", borderRadius: "2px 12px 0 0" }} />
