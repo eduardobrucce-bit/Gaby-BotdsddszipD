@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "KcKqskRbrt4VqXzLNlwbe"
+uri = "file://netlify-deploy.zip"
+type = "unspecified"
+title = "netlify-deploy.zip — Build para Netlify"
