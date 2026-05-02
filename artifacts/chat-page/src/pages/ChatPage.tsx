@@ -5,8 +5,8 @@ const bgPattern = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 
 type MsgKind = "audio1" | "image" | "audio2" | "audio3";
 const SEQUENCE: MsgKind[] = ["audio1", "image", "audio2", "audio3"];
-const DELAYS = [600, 1400, 2200, 3000];
-const INPUT_DELAY = 3800;
+const DELAYS = [1500, 3800, 6500, 9500];
+const INPUT_DELAY = 12000;
 
 function AudioBubble({ src }: { src: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -183,58 +183,58 @@ export default function ChatPage() {
 
     // sequence: text1 → aud4 → text2 → aud5 → aud6
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "text:Hmmmm.. gostei do seu nome 😏",  delay: 1400 },
-      { kind: "aud4",                                  delay: 2600 },
-      { kind: "text:Você curte? 🔥",                  delay: 4000 },
-      { kind: "aud5",                                  delay: 5200 },
-      { kind: "aud6",                                  delay: 6400 },
+      { kind: "text:Hmmmm.. gostei do seu nome 😏",  delay: 3000 },
+      { kind: "aud4",                                  delay: 6000 },
+      { kind: "text:Você curte? 🔥",                  delay: 9000 },
+      { kind: "aud5",                                  delay: 12000 },
+      { kind: "aud6",                                  delay: 15000 },
     ];
 
     const timers: ReturnType<typeof setTimeout>[] = [];
     steps.forEach(({ kind, delay }) => {
-      timers.push(setTimeout(() => setReplyTyping(true), delay - 700));
+      timers.push(setTimeout(() => setReplyTyping(true), delay - 1500));
       timers.push(setTimeout(() => {
         setReplyTyping(false);
         setBotReplies((prev) => [...prev, kind]);
       }, delay));
     });
-    timers.push(setTimeout(() => setShowChoices(true), 7200));
+    timers.push(setTimeout(() => setShowChoices(true), 17000));
   }
 
   function triggerChoiceReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "resp1",                              delay: 1200 },
-      { kind: "text:É um grupinho 100% Fechado! 🔒", delay: 2600 },
-      { kind: "img:group-img.jpg",                  delay: 4000 },
-      { kind: "resp2",                              delay: 5400 },
-      { kind: "text:😅",                            delay: 6800 },
-      { kind: "resp3",                              delay: 8200 },
-      { kind: "resp4",                              delay: 9600 },
+      { kind: "resp1",                              delay: 2500 },
+      { kind: "text:É um grupinho 100% Fechado! 🔒", delay: 5500 },
+      { kind: "img:group-img.jpg",                  delay: 8500 },
+      { kind: "resp2",                              delay: 11500 },
+      { kind: "text:😅",                            delay: 14500 },
+      { kind: "resp3",                              delay: 17500 },
+      { kind: "resp4",                              delay: 20500 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setChoiceTyping(true), delay - 700);
+      setTimeout(() => setChoiceTyping(true), delay - 1500);
       setTimeout(() => {
         setChoiceTyping(false);
         setChoiceReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowInput2(true), 10400);
+    setTimeout(() => setShowInput2(true), 22500);
   }
 
   function triggerFinalReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "fin1",                                delay: 1200 },
-      { kind: "text:Pra não da problema pra ngm...", delay: 2600 },
-      { kind: "fin2",                                delay: 4000 },
+      { kind: "fin1",                                delay: 2500 },
+      { kind: "text:Pra não da problema pra ngm...", delay: 5500 },
+      { kind: "fin2",                                delay: 8500 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setFinalTyping(true), delay - 700);
+      setTimeout(() => setFinalTyping(true), delay - 1500);
       setTimeout(() => {
         setFinalTyping(false);
         setFinalReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowChoices2(true), 4800);
+    setTimeout(() => setShowChoices2(true), 10500);
   }
 
   function sendFinalMessage() {
@@ -252,17 +252,17 @@ export default function ChatPage() {
 
   function triggerAgeReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "age1",        delay: 1200 },
-      { kind: "text:Ok? 😊", delay: 2600 },
+      { kind: "age1",        delay: 2500 },
+      { kind: "text:Ok? 😊", delay: 5500 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setAgeTyping(true), delay - 700);
+      setTimeout(() => setAgeTyping(true), delay - 1500);
       setTimeout(() => {
         setAgeTyping(false);
         setAgeReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowOkChoice(true), 3300);
+    setTimeout(() => setShowOkChoice(true), 7500);
   }
 
   function triggerOkReply() {
@@ -277,30 +277,30 @@ export default function ChatPage() {
       "Qual delas você gosta mais 👇",
     ];
     msgs.forEach((msg, i) => {
-      const delay = 1200 + i * 1600;
-      setTimeout(() => setOkTyping(true), delay - 800);
+      const delay = 2500 + i * 3000;
+      setTimeout(() => setOkTyping(true), delay - 1500);
       setTimeout(() => {
         setOkTyping(false);
         setOkReplies((prev) => [...prev, msg]);
       }, delay);
     });
-    const lastDelay = 1200 + (msgs.length - 1) * 1600;
-    setTimeout(() => setShowTypeChoices(true), lastDelay + 800);
+    const lastDelay = 2500 + (msgs.length - 1) * 3000;
+    setTimeout(() => setShowTypeChoices(true), lastDelay + 1500);
   }
 
   function triggerTypeReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "text:Perfeito meu amor 🔥 Você é dos meus!", delay: 1400 },
-      { kind: "aud7",                                       delay: 2800 },
+      { kind: "text:Perfeito meu amor 🔥 Você é dos meus!", delay: 2800 },
+      { kind: "aud7",                                       delay: 6000 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setTypeTyping(true), delay - 700);
+      setTimeout(() => setTypeTyping(true), delay - 1500);
       setTimeout(() => {
         setTypeTyping(false);
         setTypeReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowTimeChoices(true), 3600);
+    setTimeout(() => setShowTimeChoices(true), 8000);
   }
 
   function triggerTimeReply() {
@@ -312,15 +312,15 @@ export default function ChatPage() {
       "Você TEM CERTEZA que é discreto e sabe se comportar com mulher casada?",
     ];
     msgs.forEach((msg, i) => {
-      const delay = 1400 + i * 1800;
-      setTimeout(() => setTimeTyping(true), delay - 800);
+      const delay = 3000 + i * 3500;
+      setTimeout(() => setTimeTyping(true), delay - 1500);
       setTimeout(() => {
         setTimeTyping(false);
         setTimeReplies((prev) => [...prev, msg]);
       }, delay);
     });
-    const lastDelay = 1400 + (msgs.length - 1) * 1800;
-    setTimeout(() => setShowDiscreetChoice(true), lastDelay + 800);
+    const lastDelay = 3000 + (msgs.length - 1) * 3500;
+    setTimeout(() => setShowDiscreetChoice(true), lastDelay + 1500);
   }
 
   function triggerDiscreetReply() {
@@ -329,52 +329,52 @@ export default function ChatPage() {
       "Eai amor, vai querer entrar agora ?",
     ];
     msgs.forEach((msg, i) => {
-      const delay = 1400 + i * 1800;
-      setTimeout(() => setDiscreetTyping(true), delay - 800);
+      const delay = 3000 + i * 3500;
+      setTimeout(() => setDiscreetTyping(true), delay - 1500);
       setTimeout(() => {
         setDiscreetTyping(false);
         setDiscreetReplies((prev) => [...prev, msg]);
       }, delay);
     });
-    const lastDelay = 1400 + (msgs.length - 1) * 1800;
-    setTimeout(() => setShowEnterChoices(true), lastDelay + 800);
+    const lastDelay = 3000 + (msgs.length - 1) * 3500;
+    setTimeout(() => setShowEnterChoices(true), lastDelay + 1500);
   }
 
   function triggerEnterReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "text:Assim que você entrar, já vamos conversar direto no zap, tá?",                                                                                              delay: 1400  },
-      { kind: "text:Lá dentro você vai poder falar com as meninas, mandar mensagem, trocar foto... Aqui fica muito limitado pra conversar",                                   delay: 3200  },
-      { kind: "text:Combinado?",                                                                                                                                               delay: 5000  },
-      { kind: "text:te mostrar uma fotinha minha pra ver se vc gosta 😈",                                                                                                     delay: 6800  },
-      { kind: "img:enter-photo.png",                                                                                                                                           delay: 8600  },
-      { kind: "text:Eu tenho 45 anos, amo fuder pra caralho e chupar um pau bem gostoso bem devagar... Você curte esse tipo de mulher?",                                      delay: 10400 },
-      { kind: "text:Quer ver mais? Eu mostro rsrs",                                                                                                                            delay: 12200 },
+      { kind: "text:Assim que você entrar, já vamos conversar direto no zap, tá?",                                                                                              delay: 3000  },
+      { kind: "text:Lá dentro você vai poder falar com as meninas, mandar mensagem, trocar foto... Aqui fica muito limitado pra conversar",                                   delay: 6500  },
+      { kind: "text:Combinado?",                                                                                                                                               delay: 10000 },
+      { kind: "text:te mostrar uma fotinha minha pra ver se vc gosta 😈",                                                                                                     delay: 13500 },
+      { kind: "img:enter-photo.png",                                                                                                                                           delay: 17000 },
+      { kind: "text:Eu tenho 45 anos, amo fuder pra caralho e chupar um pau bem gostoso bem devagar... Você curte esse tipo de mulher?",                                      delay: 20500 },
+      { kind: "text:Quer ver mais? Eu mostro rsrs",                                                                                                                            delay: 24000 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setEnterTyping(true), delay - 800);
+      setTimeout(() => setEnterTyping(true), delay - 1500);
       setTimeout(() => {
         setEnterTyping(false);
         setEnterReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowLikedChoice(true), 13000);
+    setTimeout(() => setShowLikedChoice(true), 26000);
   }
 
   function triggerLikedReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "aud8",               delay: 1200 },
-      { kind: "aud9",               delay: 2600 },
-      { kind: "text:Enfimm amor",   delay: 4000 },
-      { kind: "text:Quer entrar agora antes que feche?", delay: 5400 },
+      { kind: "aud8",               delay: 2500 },
+      { kind: "aud9",               delay: 5500 },
+      { kind: "text:Enfimm amor",   delay: 8500 },
+      { kind: "text:Quer entrar agora antes que feche?", delay: 11500 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setLikedTyping(true), delay - 700);
+      setTimeout(() => setLikedTyping(true), delay - 1500);
       setTimeout(() => {
         setLikedTyping(false);
         setLikedReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => setShowWantEnter(true), 6100);
+    setTimeout(() => setShowWantEnter(true), 13500);
   }
 
   function selectAgeChoice(option: string) {
