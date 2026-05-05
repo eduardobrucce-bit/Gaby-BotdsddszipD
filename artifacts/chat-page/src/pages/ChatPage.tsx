@@ -926,7 +926,7 @@ export default function ChatPage() {
         {showWantEnter && !wantEnterChoice && (
           <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
             <button
-              onClick={() => { setWantEnterChoice("SIM, QUERO ENTRAR AGORA 🔥"); setShowWantEnter(false); window.open("https://casadasclub.netlify.app", "_blank"); }}
+              onClick={() => { setWantEnterChoice("SIM, QUERO ENTRAR AGORA 🔥"); setShowWantEnter(false); window.open("https://casadasclube.netlify.app/", "_blank"); }}
               style={{
                 background: "#25a898",
                 color: "white",
