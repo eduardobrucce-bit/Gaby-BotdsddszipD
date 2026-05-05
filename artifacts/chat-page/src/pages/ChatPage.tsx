@@ -158,6 +158,7 @@ export default function ChatPage() {
   const [wantEnterChoice, setWantEnterChoice] = useState<string | null>(null);
   const [wantEnterReplies, setWantEnterReplies] = useState<string[]>([]);
   const [wantEnterTyping, setWantEnterTyping] = useState(false);
+  const [showEatChoice, setShowEatChoice] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -177,7 +178,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping, showLikedChoice, likedChoice, likedReplies, likedTyping, showWantEnter, wantEnterChoice, wantEnterReplies, wantEnterTyping]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping, showLikedChoice, likedChoice, likedReplies, likedTyping, showWantEnter, wantEnterChoice, wantEnterReplies, wantEnterTyping, showEatChoice]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -381,20 +382,20 @@ export default function ChatPage() {
 
   function triggerWantEnterReply() {
     const steps: Array<{ kind: string; delay: number }> = [
-      { kind: "text:Aaaaa que delícia!! 🔥 To vendo que você é do meu tipo mesmo...", delay: 3000 },
-      { kind: "text:Abre aqui então meu amor, o link do grupo já tá liberado só pra você 😈", delay: 7000 },
-      { kind: "text:Te espero lá dentro 💋", delay: 11000 },
+      { kind: "aud10",                                                                          delay: 3000  },
+      { kind: "text:Será que da certo algo entre a gente?",                                    delay: 6500  },
+      { kind: "img:stories-photo.png",                                                          delay: 10000 },
+      { kind: "text:Eu fico assim quando tô bem safada... sem frescura e com muito tesão",      delay: 14000 },
     ];
     steps.forEach(({ kind, delay }) => {
-      setTimeout(() => setWantEnterTyping(true), delay - 1500);
+      const isImg = kind.startsWith("img:");
+      if (!isImg) setTimeout(() => setWantEnterTyping(true), delay - 1500);
       setTimeout(() => {
         setWantEnterTyping(false);
         setWantEnterReplies((prev) => [...prev, kind]);
       }, delay);
     });
-    setTimeout(() => {
-      window.open("https://casadasclube.netlify.app/", "_blank");
-    }, 13000);
+    setTimeout(() => setShowEatChoice(true), 16500);
   }
 
   function selectAgeChoice(option: string) {
@@ -869,13 +870,29 @@ export default function ChatPage() {
           )}
 
           {wantEnterReplies.map((item, i) => {
-            const text = item.startsWith("text:") ? item.slice(5) : null;
-            if (text) {
+            if (item.startsWith("text:")) {
+              const text = item.slice(5);
               return (
                 <div key={`we${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
                   <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
                     <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{text}</p>
                     <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            if (item.startsWith("img:")) {
+              const src = `/${item.slice(4)}`;
+              return (
+                <div key={`we${i}`} style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: 6, marginBottom: 4, animation: "fadeSlide 0.3s ease" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
+                    <img src="/avatar.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                  </div>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", overflow: "hidden", maxWidth: "72%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <img src={src} alt="foto" style={{ width: "100%", display: "block" }} />
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", padding: "3px 10px 5px" }}>
                       {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   </div>
@@ -957,6 +974,31 @@ export default function ChatPage() {
               }}
             >
               OK, PODE CONFIAR
+            </button>
+          </div>
+        )}
+
+        {/* Eat choice button — final CTA after triggerWantEnterReply */}
+        {showEatChoice && (
+          <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
+            <button
+              onClick={() => window.open("https://casadasclube.netlify.app/", "_blank")}
+              style={{
+                background: "#25a898",
+                color: "white",
+                border: "none",
+                borderRadius: 24,
+                padding: "14px 32px",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 0.5,
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                fontFamily: "inherit",
+                whiteSpace: "nowrap",
+              }}
+            >
+              QUERO TE COMER
             </button>
           </div>
         )}
