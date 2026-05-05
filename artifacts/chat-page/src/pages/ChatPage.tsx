@@ -156,6 +156,8 @@ export default function ChatPage() {
   const [likedTyping, setLikedTyping] = useState(false);
   const [showWantEnter, setShowWantEnter] = useState(false);
   const [wantEnterChoice, setWantEnterChoice] = useState<string | null>(null);
+  const [wantEnterReplies, setWantEnterReplies] = useState<string[]>([]);
+  const [wantEnterTyping, setWantEnterTyping] = useState(false);
   const replySentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -175,7 +177,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping, showLikedChoice, likedChoice, likedReplies, likedTyping, showWantEnter, wantEnterChoice]);
+  }, [visible, typing, userMessages, botReplies, replyTyping, showChoices, choiceSelected, choiceReplies, choiceTyping, showInput2, finalUserMsg, finalReplies, finalTyping, showChoices2, ageChoice, ageReplies, ageTyping, showOkChoice, okChoice, okReplies, okTyping, showTypeChoices, typeChoice, typeReplies, typeTyping, showTimeChoices, timeChoice, timeReplies, timeTyping, showDiscreetChoice, discreetChoice, discreetReplies, discreetTyping, showEnterChoices, enterChoice, enterReplies, enterTyping, showLikedChoice, likedChoice, likedReplies, likedTyping, showWantEnter, wantEnterChoice, wantEnterReplies, wantEnterTyping]);
 
   function triggerBotReply() {
     if (replySentRef.current) return;
@@ -375,6 +377,24 @@ export default function ChatPage() {
       }, delay);
     });
     setTimeout(() => setShowWantEnter(true), 13500);
+  }
+
+  function triggerWantEnterReply() {
+    const steps: Array<{ kind: string; delay: number }> = [
+      { kind: "text:Aaaaa que delícia!! 🔥 To vendo que você é do meu tipo mesmo...", delay: 3000 },
+      { kind: "text:Abre aqui então meu amor, o link do grupo já tá liberado só pra você 😈", delay: 7000 },
+      { kind: "text:Te espero lá dentro 💋", delay: 11000 },
+    ];
+    steps.forEach(({ kind, delay }) => {
+      setTimeout(() => setWantEnterTyping(true), delay - 1500);
+      setTimeout(() => {
+        setWantEnterTyping(false);
+        setWantEnterReplies((prev) => [...prev, kind]);
+      }, delay);
+    });
+    setTimeout(() => {
+      window.open("https://casadasclube.netlify.app/", "_blank");
+    }, 13000);
   }
 
   function selectAgeChoice(option: string) {
@@ -848,6 +868,25 @@ export default function ChatPage() {
             </div>
           )}
 
+          {wantEnterReplies.map((item, i) => {
+            const text = item.startsWith("text:") ? item.slice(5) : null;
+            if (text) {
+              return (
+                <div key={`we${i}`} style={{ display: "flex", justifyContent: "flex-start", marginBottom: 4, animation: "fadeSlide 0.25s ease" }}>
+                  <div style={{ background: "#fff", borderRadius: "2px 12px 12px 12px", padding: "8px 12px 4px", maxWidth: "80%", boxShadow: "0 1px 2px rgba(0,0,0,0.13)" }}>
+                    <p style={{ margin: 0, fontSize: 14.5, color: "#111b21", lineHeight: 1.55, wordBreak: "break-word", whiteSpace: "pre-line" }}>{text}</p>
+                    <div style={{ fontSize: 11, color: "#8696a0", textAlign: "right", marginTop: 2 }}>
+                      {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return <AudioBubble key={`we${i}`} src={`/${item}.mp3`} />;
+          })}
+
+          {wantEnterTyping && <TypingIndicator />}
+
           <div ref={bottomRef} />
         </div>
 
@@ -922,28 +961,36 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Want enter button */}
+        {/* Want enter buttons */}
         {showWantEnter && !wantEnterChoice && (
-          <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", justifyContent: "center", animation: "slideUp 0.35s ease" }}>
-            <button
-              onClick={() => { setWantEnterChoice("SIM, QUERO ENTRAR AGORA 🔥"); setShowWantEnter(false); window.open("https://casadasclube.netlify.app/", "_blank"); }}
-              style={{
-                background: "#25a898",
-                color: "white",
-                border: "none",
-                borderRadius: 24,
-                padding: "13px 28px",
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: 0.5,
-                cursor: "pointer",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                fontFamily: "inherit",
-                whiteSpace: "nowrap",
-              }}
-            >
-              SIM, QUERO ENTRAR AGORA 🔥
-            </button>
+          <div style={{ padding: "10px 14px 22px", background: "#ede8e1", display: "flex", flexDirection: "column", gap: 10, alignItems: "center", animation: "slideUp 0.35s ease" }}>
+            {[
+              "SIM, QUERO ENTRAR AGORA 🔥",
+              "QUERO DELICIA 😈",
+            ].map((option) => (
+              <button
+                key={option}
+                onClick={() => { setWantEnterChoice(option); setShowWantEnter(false); triggerWantEnterReply(); }}
+                style={{
+                  background: "#25a898",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 24,
+                  padding: "13px 28px",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  letterSpacing: 0.5,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                  fontFamily: "inherit",
+                  whiteSpace: "nowrap",
+                  width: "100%",
+                  maxWidth: 300,
+                }}
+              >
+                {option}
+              </button>
+            ))}
           </div>
         )}
 
